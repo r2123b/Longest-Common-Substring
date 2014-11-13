@@ -157,6 +157,10 @@ bool Print_LCS_Result(const string X, const string Y, const vector<vector<int>> 
 {
     if(label.empty())
         return false;
+    if (cost[m-1][n-1] == 0) {
+        cout<<"No common substring!!\n";
+        return true;
+    }
     
     cout<< "String X:"<< X <<endl;
     cout <<"String Y:"<< Y <<endl;
@@ -207,8 +211,8 @@ bool Print_LCS_Result(const string X, const string Y, const vector<vector<int>> 
 }
 
 int main(int argc, const char * argv[]) {
-    string X("ABCDEF"); X.insert(0, " ");
-    string Y("ABCDEE"); Y.insert(0, " ");
+    string X("AAA"); X.insert(0, " ");
+    string Y("BBB"); Y.insert(0, " ");
     const int m = (int)X.length();
     const int n = (int)Y.length();
     vector<vector<int>> cost(m, vector<int>(n));
