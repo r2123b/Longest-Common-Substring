@@ -93,14 +93,14 @@ void Print_STKresult(const stack<pair<int,int>> &STK_result, const string X, con
     while (!STK_temp.empty()) {
         point = STK_temp.top();
         
-        //-----------int to string-----------------
+        //-----------"int" convert to "string" using stringstream-----------------
         stringstream ss;
         ss << point.first;
         string intTOstringX = ss.str();
         ss.str(""); ss.clear(); //these two codes clear the stringstream
         ss << point.second;
         string intTOstringY = ss.str();
-        //------------------------------------
+        //------------------------------------------------------------------------
         
         resultX.append(intTOstringX); resultX.push_back(' ');
         resultY.append(intTOstringY); resultY.push_back(' ');
@@ -207,8 +207,8 @@ bool Print_LCS_Result(const string X, const string Y, const vector<vector<int>> 
 }
 
 int main(int argc, const char * argv[]) {
-    string X("CBADABDCAACD"); X.insert(0, "_");
-    string Y("BACDACDBABAC"); Y.insert(0, "_");
+    string X("ABCDEF"); X.insert(0, " ");
+    string Y("ABCDEE"); Y.insert(0, " ");
     const int m = (int)X.length();
     const int n = (int)Y.length();
     vector<vector<int>> cost(m, vector<int>(n));
