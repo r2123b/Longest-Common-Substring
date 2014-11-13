@@ -164,7 +164,7 @@ bool Print_LCS_Result(const string X, const string Y, const vector<vector<int>> 
     
     cout<< "String X:"<< X <<endl;
     cout <<"String Y:"<< Y <<endl;
-    cout <<"Max Lenght = "<< cost[m-1][n-1] << endl;
+    cout <<"Max Length = "<< cost[m-1][n-1] << endl;
     
     //用stack印出路徑
     stack<pair<int,int>> STK_both;
@@ -185,8 +185,9 @@ bool Print_LCS_Result(const string X, const string Y, const vector<vector<int>> 
         STK_both.pop();
         //path pop 到 aim
         while (STK_path.top() != nowPoint) {
-            if (STK_path.top() == STK_result.top()) { //若result有重複的點要刪除
-                STK_result.pop();
+            if ( !STK_result.empty() ) {
+                if (STK_path.top() == STK_result.top())  //若result有跟path一樣的點要一併刪除
+                    STK_result.pop();
             }
             STK_path.pop();
         }
@@ -211,8 +212,8 @@ bool Print_LCS_Result(const string X, const string Y, const vector<vector<int>> 
 }
 
 int main(int argc, const char * argv[]) {
-    string X("AAA"); X.insert(0, " ");
-    string Y("BBB"); Y.insert(0, " ");
+    string X("ABCD"); X.insert(0, " ");
+    string Y("ADDC"); Y.insert(0, " ");
     const int m = (int)X.length();
     const int n = (int)Y.length();
     vector<vector<int>> cost(m, vector<int>(n));
@@ -222,7 +223,7 @@ int main(int argc, const char * argv[]) {
     initial_2Dvector(cost, m, n);
     initial_2Dvector(label, m, n);
     LCS(X, Y, cost, label, m, n);
-//    Print_2Dvector(cost, m, n); //the use of uni-testing
+    Print_2Dvector(label, m, n); //the use of uni-testing
     Print_LCS_Result(X, Y, cost, label, m, n);
     
     return 0;
