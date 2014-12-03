@@ -26,6 +26,12 @@ enum direct {
     BOTH = 4
 };
 
+/*-------------the use of uni-testing-------------*/
+void Print_2Dvector(vector<vector<int>> &v, const string X, const string Y);
+void Print_stack(const stack<pair<int, int>> & stk);
+/*------------------------------------------------*/
+
+
 bool initial_2Dvector(vector<vector<int>> &matrix,
                       const int m,
                       const int n);

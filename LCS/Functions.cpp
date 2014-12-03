@@ -15,6 +15,38 @@
 #include <list>
 using namespace std;
 
+/*-------------the use of uni-testing-------------*/
+void Print_2Dvector(vector<vector<int>> &v, const string X, const string Y)
+{
+    int m = X.length();
+    int n = Y.length();
+    
+    cout<<"  ";
+    for (int i=0; i<n; i++) {
+        cout<<Y[i]<<" ";
+    }
+    cout<<"\n";
+    
+    
+    for(int i=0; i<m; i++) {
+        cout<<X[i]<<" ";
+        for(int j=0; j<n; j++)
+            cout<< v[i][j] << " ";
+        cout<<endl;
+    }
+}
+
+void Print_stack(const stack<pair<int, int>> & stk)
+{
+    stack<pair<int, int>> s = stk;
+    while ( !s.empty() ) {
+        pair<int, int>temp = s.top();
+        cout<<"<"<<temp.first<<", "<<temp.second<<">"<<endl;
+        s.pop();
+    }
+}
+/*------------------------------------------------*/
+
 bool initial_2Dvector(vector<vector<int>> &matrix, const int m, const int n)
 {
     if (matrix.empty())
@@ -57,7 +89,6 @@ void LCS(const string X, const string Y, vector<vector<int>> &cost, vector<vecto
 
 void Print_STKresult(const stack<pair<int,int>> &STK_result, const string X, const string Y)
 {
-    //    cout<<"size:"<<STK_result.size()<<endl;  //for testing
     stack<pair<int,int>>STK_temp(STK_result);
     pair<int, int> point;
     string resultX, resultY;
@@ -91,9 +122,9 @@ void Print_STKresult(const stack<pair<int,int>> &STK_result, const string X, con
     <<endl;
 }
 
-void Find_Path(const vector<vector<int>> &label,
+void Find_Path(const vector<vector<int>> &cost,
+               const vector<vector<int>> &label,
                pair<int, int> &nowPoint,
-               const pair<int, int> &endPoint,
                stack<pair<int, int>> &STK_path,
                stack<pair<int, int>> &STK_result,
                stack<pair<int, int>> &STK_both)
@@ -111,6 +142,18 @@ void Find_Path(const vector<vector<int>> &label,
                 
             case LEFTUP:
                 STK_result.push(nowPoint);
+                if(cost[nowPoint.first][nowPoint.second] == cost[nowPoint.first][nowPoint.second-1])  //旁邊的cost與自己一樣！記錄起來
+                {
+                    pair<int, int> Left_point(nowPoint.first, nowPoint.second-1);
+                    STK_both.push(Left_point);
+                    STK_both.push(nowPoint);
+                }
+                else if (cost[nowPoint.first][nowPoint.second] == cost[nowPoint.first-1][nowPoint.second])
+                {
+                    pair<int, int> Up_point(nowPoint.first-1 , nowPoint.second);
+                    STK_both.push(Up_point);
+                    STK_both.push(nowPoint);
+                }
                 nowPoint.first -= 1;
                 nowPoint.second -= 1;
                 break;
@@ -125,6 +168,19 @@ void Find_Path(const vector<vector<int>> &label,
                 break;
         }
     }
+}
+
+bool is_nowpoint_in_STK_path(const pair<int, int> &nowPoint, const stack<pair<int,int>> &STK_path)
+{
+    stack<pair<int, int>> dupSTK(STK_path);
+    for (int i=(int)dupSTK.size(); i>0; i--) {
+        pair<int, int>temp = dupSTK.top();
+        if (temp == nowPoint) {
+            return true;
+        }
+        dupSTK.pop();
+    }
+    return false;
 }
 
 bool Print_LCS_Result(const string X, const string Y, const vector<vector<int>> &cost, const vector<vector<int>> &label, const int m, const int n)
@@ -147,28 +203,49 @@ bool Print_LCS_Result(const string X, const string Y, const vector<vector<int>> 
     vector<stack<pair<int,int>>> VEC_ResultList; //using to check duplicate result
     
     const pair<int, int>beginPoint(m-1, n-1);
-    const pair<int, int>endPoint(1, 1);
     pair<int, int>nowPoint(beginPoint);
     
-    Find_Path(label, nowPoint, endPoint, STK_path, STK_result, STK_both);
-    Print_STKresult(STK_result, X, Y); //print the first path
+    // find the first path, and then, print and save to VEC_ResultList
+    Find_Path(cost, label, nowPoint, STK_path, STK_result, STK_both);
+    Print_STKresult(STK_result, X, Y);
     VEC_ResultList.push_back(STK_result);
     
     while ( !STK_both.empty() ) {
-        nowPoint = STK_both.top(); //reuse "nowpoint"
+        //reuse "nowpoint" and let it
+        nowPoint = STK_both.top();
         STK_both.pop();
-        //path pop 到 aim
-        while (STK_path.top() != nowPoint) {
-            if ( !STK_result.empty() ) {
-                if (STK_path.top() == STK_result.top())  //若result有跟path一樣的點要一併刪除
-                    STK_result.pop();
+        
+
+        if( label[nowPoint.first][nowPoint.second] != LEFTUP ) {
+            //STK_path pop 到 aim
+            while (STK_path.top() != nowPoint) {
+                if ( !STK_result.empty() ) {
+                    if (STK_path.top() == STK_result.top())  //若result有跟path一樣的點要一併刪除
+                        STK_result.pop();
+                }
+                STK_path.pop();
             }
-            STK_path.pop();
+            nowPoint.second -= 1;  //若為both，則往左移動，因為往上的路已經找過
         }
-        //先從both的點往左移動，因為
-        nowPoint.second -= 1;
+        else {
+            //STK_path pop 到 aim
+            while (STK_path.top() != nowPoint) {
+                if ( !STK_result.empty() ) {
+                    if (STK_path.top() == STK_result.top())  //若result有跟path一樣的點要一併刪除
+                        STK_result.pop();
+                }
+                STK_path.pop();
+            }
+            
+            STK_result.pop();
+            STK_path.pop();
+            nowPoint = STK_both.top();
+            STK_both.pop();
+        }
+        
+        
         //再找新的path
-        Find_Path(label, nowPoint, endPoint, STK_path, STK_result, STK_both);
+        Find_Path(cost, label, nowPoint, STK_path, STK_result, STK_both);
         
         //check whether there is duplicate
         bool check_dup = false;
@@ -176,7 +253,7 @@ bool Print_LCS_Result(const string X, const string Y, const vector<vector<int>> 
             if (*it == STK_result)
                 check_dup = true;
         }
-        
+        // if no duplication, print and save to VEC_ResultList
         if(!check_dup){
             Print_STKresult(STK_result, X, Y);
             VEC_ResultList.push_back(STK_result);
